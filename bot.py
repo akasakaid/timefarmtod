@@ -25,19 +25,19 @@ reset = Style.RESET_ALL
 class TimeFarm:
     def __init__(self):
         self.headers = {
-            "host": "tg-bot-tap.laborx.io",
-            "connection": "keep-alive",
-            "user-agent": "",
-            "content-type": "text/plain;charset=UTF-8",
-            "accept": "*/*",
-            "origin": "https://tg-tap-miniapp.laborx.io",
-            "x-requested-with": "org.telegram.messenger",
-            "sec-fetch-site": "same-site",
-            "sec-fetch-mode": "cors",
-            "sec-fetch-dest": "empty",
-            "referer": "https://tg-tap-miniapp.laborx.io/",
-            "accept-encoding": "gzip, deflate",
-            "accept-language": "en,en-US;q=0.9",
+            "Host": "tg-bot-tap.laborx.io",
+            "Connection": "keep-alive",
+            "User-Agent": "",
+            "Content-Type": "text/plain;charset=UTF-8",
+            "Accept": "*/*",
+            "Origin": "https://tg-tap-miniapp.laborx.io",
+            "X-Requested-With": "org.telegram.messenger",
+            "Sec-Fetch-Site": "same-site",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Dest": "empty",
+            "Referer": "https://tg-tap-miniapp.laborx.io/",
+            "Accept-Encoding": "gzip, deflate",
+            "Accept-Language": "en,en-US;q=0.9",
         }
         self.line = putih + "~" * 50
 
