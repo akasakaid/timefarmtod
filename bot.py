@@ -58,7 +58,7 @@ class TimeFarm:
     def get_task(self, token):
         url_task = "https://tg-bot-tap.laborx.io/api/v1/tasks"
         headers = self.headers.copy()
-        headers["authorization"] = f"Bearer {token}"
+        headers["Authorization"] = f"Bearer {token}"
         res = self.http(url_task, headers)
         for task in res.json():
             task_id = task["id"]
@@ -77,7 +77,7 @@ class TimeFarm:
                         f"https://tg-bot-tap.laborx.io/api/v1/tasks/{task_id}/claims"
                     )
                     data = json.dumps({})
-                    headers["content-length"] = str(len(data))
+                    headers["Content-Length"] = str(len(data))
                     res = self.http(url_claim, headers, data)
                     if res.text.lower() == "ok":
                         self.log(f"{hijau}success claim reward {task_title}")
@@ -87,7 +87,7 @@ class TimeFarm:
                 f"https://tg-bot-tap.laborx.io/api/v1/tasks/{task_id}/submissions"
             )
             data = json.dumps({})
-            headers["content-length"] = str(len(data))
+            headers["Content-Length"] = str(len(data))
             res = self.http(url_submit, headers, data)
             if res.text.lower() != "ok":
                 self.log(f"{merah}failed send submission {task_title}")
@@ -102,7 +102,7 @@ class TimeFarm:
 
             url_claim = f"https://tg-bot-tap.laborx.io/api/v1/tasks/{task_id}/claims"
             data = json.dumps({})
-            headers["content-length"] = str(len(data))
+            headers["Content-Length"] = str(len(data))
             res = self.http(url_claim, headers, data)
             if res.text.lower() == "ok":
                 self.log(f"{hijau}success claim reward {task_title}")
@@ -111,7 +111,7 @@ class TimeFarm:
     def get_farming(self, token):
         url = "https://tg-bot-tap.laborx.io/api/v1/farming/info"
         headers = self.headers.copy()
-        headers["authorization"] = f"Bearer {token}"
+        headers["Authorization"] = f"Bearer {token}"
         res = self.http(url, headers)
         balance = res.json()["balance"]
         self.log(f"{hijau}balance : {putih}{balance}")
@@ -141,7 +141,7 @@ class TimeFarm:
             self.log(f"{hijau}farming was end !")
             url_finish = "https://tg-bot-tap.laborx.io/api/v1/farming/finish"
             data = json.dumps({})
-            headers["content-length"] = str(len(data))
+            headers["Content-Length"] = str(len(data))
             res = self.http(url_finish, headers, data)
             balance = res.json()["balance"]
             self.log(f"{hijau}balance after farming : {putih}{balance}")
@@ -263,7 +263,7 @@ class TimeFarm:
         while True:
             try:
                 if data is None:
-                    headers["content-length"] = "0"
+                    headers["Content-Length"] = "0"
                     res = requests.get(url, headers=headers)
                     open('http.log','a',encoding='utf-8').write(res.text + '\n')
                     return res
