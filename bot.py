@@ -219,7 +219,7 @@ class TimeFarm:
                 userid = str(user["id"])
                 if userid not in tokens.keys():
                     user_ua = self.get_ua()
-                    self.headers['user-agent'] = user_ua
+                    self.headers["User-Agent"] = user_ua
                     user_token = self.get_token(data)
                     if user_token is False:
                         continue
@@ -231,7 +231,7 @@ class TimeFarm:
                 user_ua = tokens[userid]["ua"]
                 is_expired = self.token_checker(user_token)
                 if is_expired is False:
-                    self.headers["user-agent"] = user_ua
+                    self.headers["User-Agent"] = user_ua
                     user_token = self.get_token(data)
                     if user_token is False:
                         continue
