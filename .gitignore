@@ -4,3 +4,5 @@ env
 *.json
 !tokens.json
 sss
+sessions
+*.session
