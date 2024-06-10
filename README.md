@@ -2,6 +2,10 @@
 
 Auto claim for time farm telegram bot
 
+<center>
+<img src="./images/image.png" width="400" height="300">
+</center>
+
 # Table of Contens
 
 - [TimeFarmTod](#timefarmtod)
