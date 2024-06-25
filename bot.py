@@ -2,12 +2,10 @@ import os
 import sys
 import json
 import time
-import random
 import requests
 from colorama import *
-from base64 import b64decode
 from datetime import datetime
-from urllib.parse import unquote
+from urllib.parse import parse_qs
 from random_user_agent.user_agent import UserAgent
 from random_user_agent.params import SoftwareName, OperatingSystem
 
@@ -39,6 +37,8 @@ class TimeFarm:
             "Accept-Encoding": "gzip, deflate",
             "Accept-Language": "en,en-US;q=0.9",
         }
+        self.marin_kitagawa = lambda data: {
+            k: v[0] for k, v in parse_qs(data).items()}
         self.line = putih + "~" * 50
 
     def cvdate(self, date):
@@ -51,7 +51,8 @@ class TimeFarm:
             OperatingSystem.WINDOWS.value,
             OperatingSystem.IOS.value,
         ]
-        uar = UserAgent(software_names=software, operating_systems=operating, limit=100)
+        uar = UserAgent(software_names=software,
+                        operating_systems=operating, limit=100)
         ua = uar.get_random_user_agent()
         return ua
 
@@ -113,25 +114,26 @@ class TimeFarm:
         headers = self.headers.copy()
         headers["Authorization"] = f"Bearer {token}"
         res = self.http(url, headers)
-        balance = res.json()["balance"]
-        self.log(f"{hijau}balance : {putih}{balance}")
         start_farming = res.json()["activeFarmingStartedAt"]
         if start_farming is None:
             url_start = "https://tg-bot-tap.laborx.io/api/v1/farming/start"
             data = json.dumps({})
             res = self.http(url_start, headers, data)
             now = self.cvdate(res.headers["Date"])
-            start_farming = res.json()["activeFarmingStartedAt"].replace("Z", "")
-            start_farming_ts = int(datetime.fromisoformat(start_farming).timestamp())
+            start_farming = res.json(
+            )["activeFarmingStartedAt"].replace("Z", "")
+            start_farming_ts = int(
+                datetime.fromisoformat(start_farming).timestamp())
             farming_duration = res.json()["farmingDurationInSec"]
             end_farming = start_farming_ts + farming_duration
             end_farming_iso = datetime.fromtimestamp(end_farming)
             countdown = end_farming - now
             self.log(f"{hijau}end farming at : {putih}{end_farming_iso}")
             return countdown
-        
+
         start_farming = start_farming.replace("Z", "")
-        start_farming_ts = int(datetime.fromisoformat(start_farming).timestamp())
+        start_farming_ts = int(
+            datetime.fromisoformat(start_farming).timestamp())
         farming_duration = res.json()["farmingDurationInSec"]
         end_farming = start_farming_ts + farming_duration
         end_farming_iso = datetime.fromtimestamp(end_farming)
@@ -148,8 +150,10 @@ class TimeFarm:
             url_start = "https://tg-bot-tap.laborx.io/api/v1/farming/start"
             res = self.http(url_start, headers, data)
             now = self.cvdate(res.headers["Date"])
-            start_farming = res.json()["activeFarmingStartedAt"].replace("Z", "")
-            start_farming_ts = int(datetime.fromisoformat(start_farming).timestamp())
+            start_farming = res.json(
+            )["activeFarmingStartedAt"].replace("Z", "")
+            start_farming_ts = int(
+                datetime.fromisoformat(start_farming).timestamp())
             farming_duration = res.json()["farmingDurationInSec"]
             end_farming = start_farming_ts + farming_duration
             end_farming_iso = datetime.fromtimestamp(end_farming)
@@ -166,30 +170,51 @@ class TimeFarm:
         headers = self.headers.copy()
         res = self.http(url, headers, tg_data)
         if "token" not in res.json().keys():
-            self.log(f'{merah}token not found in response, maybe your data invalid !')
+            self.log(
+                f'{merah}token not found in response, maybe your data invalid !')
             return False
-        
+
         self.log(f'{hijau}success renew token !')
         token = res.json()["token"]
+        daily = res.json()['dailyRewardInfo']
+        self.user_level = res.json()['info']['level']
+        self.level_upgrade = res.json()['levelDescriptions']
+        self.user_balance = res.json()['balanceInfo']['balance']
+        self.log(f'{hijau}balance : {putih}{self.user_balance}')
+        self.log(f'{hijau}level : {putih}{self.user_level}')
+        if daily is not None:
+            rew = daily['reward']
+            headers['authorization'] = f"Bearer {token}"
+            daily_url = "https://tg-bot-tap.laborx.io/api/v1/me/onboarding/complete"
+            res = self.http(daily_url, headers, json.dumps({}))
+            if res.status_code == 200:
+                self.log(f'{hijau}success claim daily, reward {putih}{rew}!')
+
         return token
 
-    def parsing(self, data):
-        ret = {}
-        for i in unquote(data).split("&"):
-            key, value = i.split("=")
-            ret[key] = value
+    def upgrade_level(self, token):
+        headers = self.headers.copy()
+        headers['authorization'] = f"Bearer {token}"
+        if int(self.user_level) == int(self.level_upgrade[len(self.level_upgrade) - 1]['level']):
+            self.log(f'{kuning}you already get max level !')
+            return
+        for level in self.level_upgrade:
+            if int(self.user_level) >= int(level['level']):
+                continue
 
-        return ret
+            if level['price'] > self.user_balance:
+                self.log(f'{kuning}balance not enough to upgrade !')
+                break
 
-    def token_checker(self, token):
-        header, payload, sign = token.split(".")
-        depayload = b64decode(payload + "==")
-        jeload = json.loads(depayload)
-        expired = jeload["exp"]
-        now = int(datetime.now().timestamp())
-        if now > int(expired):
-            return False
-        return True
+            upgrade_url = "https://tg-bot-tap.laborx.io/api/v1/me/level/upgrade"
+
+            res = self.http(upgrade_url, headers, json.dumps({}))
+            if res.status_code == 200:
+                self.log(f"{hijau}success upgrade to level {level['level']}")
+                self.user_balance -= level['price']
+                self.user_level = int(level['level'])
+                continue
+            self.log(f"{merah}failed upgrade to level {level['level']}")
 
     def main(self):
         banner = f"""
@@ -197,13 +222,17 @@ class TimeFarm:
     
     {biru}By : {putih}t.me/@AkasakaID
     {biru}Github : {putih}@AkasakaID
-        
+    
+    {hijau}Message : {putih}dont forget to 'git pull' maybe the script have update !
         """
         arg = sys.argv
-        if "marin_istrinya_fawwaz" not in arg:
+        if "marin" not in arg:
             os.system("cls" if os.name == "nt" else "clear")
         print(banner)
         print(self.line)
+        config = json.loads(open("config.json").read())
+        auto_upgrade = config["auto_upgrade"]
+        auto_task = config["auto_task"]
         while True:
             list_countdown = []
             datas = open("data.txt", "r").read().splitlines()
@@ -214,7 +243,7 @@ class TimeFarm:
             self.log(f'{hijau}account detected : {putih}{len(datas)}')
             print(self.line)
             for data in datas:
-                parser = self.parsing(data)
+                parser = self.marin_kitagawa(data)
                 user = json.loads(parser["user"])
                 userid = str(user["id"])
                 if userid not in tokens.keys():
@@ -224,26 +253,24 @@ class TimeFarm:
                     if user_token is False:
                         continue
                     tokens[userid] = {}
-                    tokens[userid]["token"] = user_token
                     tokens[userid]["ua"] = user_ua
-                    open("tokens.json","w").write(json.dumps(tokens,indent=4))
-                user_token = tokens[userid]["token"]
+                    open("tokens.json", "w").write(
+                        json.dumps(tokens, indent=4))
                 user_ua = tokens[userid]["ua"]
-                is_expired = self.token_checker(user_token)
-                if is_expired is False:
-                    self.headers["User-Agent"] = user_ua
-                    user_token = self.get_token(data)
-                    if user_token is False:
-                        continue
-                    tokens[userid]["token"] = user_token
-                    open("tokens.json", "w").write(json.dumps(tokens, indent=4))
+                self.headers["User-Agent"] = user_ua
                 self.log(f"{hijau}login as : {putih}{user['first_name']}")
-                self.get_task(user_token)
+                user_token = self.get_token(data)
+                if user_token is False:
+                    continue
+                if auto_task:
+                    self.get_task(user_token)
                 curse = self.get_farming(user_token)
+                if auto_upgrade:
+                    self.upgrade_level(user_token)
                 list_countdown.append(curse)
                 print(self.line)
                 self.countdown(10)
-            
+
             min_countdown = min(list_countdown)
             self.countdown(int(min_countdown))
 
@@ -254,7 +281,8 @@ class TimeFarm:
             jam = str(jam).zfill(2)
             menit = str(menit).zfill(2)
             detik = str(detik).zfill(2)
-            print(f"{putih}waiting until {jam}:{menit}:{detik} ", flush=True, end="\r")
+            print(f"{putih}waiting until {jam}:{menit}:{detik} ",
+                  flush=True, end="\r")
             t -= 1
             time.sleep(1)
         print("                          ", flush=True, end="\r")
@@ -264,23 +292,22 @@ class TimeFarm:
             try:
                 if data is None:
                     headers["Content-Length"] = "0"
-                    res = requests.get(url, headers=headers)
-                    open('http.log','a',encoding='utf-8').write(res.text + '\n')
+                    res = requests.get(url, headers=headers, timeout=30)
+                    open('http.log', 'a', encoding='utf-8').write(res.text + '\n')
                     return res
 
                 if data == "":
-                    res = requests.post(url, headers=headers)
-                    open('http.log','a',encoding='utf-8').write(res.text + '\n')
+                    res = requests.post(url, headers=headers, timeout=30)
+                    open('http.log', 'a', encoding='utf-8').write(res.text + '\n')
                     return res
 
-                res = requests.post(url, headers=headers, data=data)
-                open('http.log','a',encoding='utf-8').write(res.text + '\n')
+                res = requests.post(url, headers=headers,
+                                    data=data, timeout=30)
+                open('http.log', 'a', encoding='utf-8').write(res.text + '\n')
                 return res
             except (
                 requests.exceptions.ConnectionError,
-                requests.exceptions.ConnectTimeout,
-                requests.exceptions.ReadTimeout,
-                requests.exceptions.ConnectTimeout,
+                requests.exceptions.Timeout
             ):
                 self.log(f"{merah}connection error / timeout !")
                 time.sleep(2)
