@@ -13,6 +13,7 @@ Auto claim for time farm telegram bot
 - [Features](#features)
 - [Register](#register)
 - [How to Use](#how-to-use)
+  - [Config.json Explanation](#configjson-explanation)
   - [Windows](#windows)
   - [Linux](#linux)
   - [Termux](#termux)
@@ -24,8 +25,9 @@ Auto claim for time farm telegram bot
 # Features
 
 - [x] Auto Claim
-- [x] Auto Complete Task (exclude telegram task)
+- [x] Auto Claim Daily Reward
 - [x] Support Multi Account
+- [x] Auto Complete Task (except telegram task)
 - [x] no login require
 
 # Register 
@@ -33,6 +35,14 @@ Auto claim for time farm telegram bot
 Click the following link for register : https://t.me/TimeFarmCryptoBot?start=aL10AOUuixNmozwN
 
 # How to Use
+
+## Config.json Explanation
+
+| key          | value             | description                               |
+| ------------ | ----------------- | ----------------------------------------- |
+| auto_upgrade | bool (true/false) | auto upgrade account to next level        |
+| auto_task    | bool (true/false) | auto complete task (except telegram task) |
+| interval     | integer (second)  | sleep time every account                  |
 
 ## Windows 
 
