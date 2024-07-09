@@ -11,13 +11,14 @@ Auto claim for time farm telegram bot
 - [TimeFarmTod](#timefarmtod)
 - [Table of Contens](#table-of-contens)
 - [Features](#features)
+- [Warning !](#warning-)
 - [Register](#register)
 - [How to Use](#how-to-use)
   - [Config.json Explanation](#configjson-explanation)
+  - [Get My Own API\_ID \& API\_HASH](#get-my-own-api_id--api_hash)
   - [Windows](#windows)
   - [Linux](#linux)
   - [Termux](#termux)
-- [How to Get Data](#how-to-get-data)
 - [Discussion](#discussion)
 - [Support](#support)
 - [Thank you \< 3](#thank-you--3)
@@ -28,7 +29,12 @@ Auto claim for time farm telegram bot
 - [x] Auto Claim Daily Reward
 - [x] Support Multi Account
 - [x] Auto Complete Task (except telegram task)
-- [x] no login require
+- [x] Using Random Device to [initConnection](https://core.telegram.org/method/initConnection)
+
+# Warning !
+According to [Telegram TOS](https://core.telegram.org/api/obtaining_api_id#using-the-api-id) all accounts that sign up or log in using unofficial Telegram API clients are automatically put under observation to avoid violations of the Terms of Service.
+
+So be careful, hopefully your account won't get banned.
 
 # Register 
 
@@ -38,11 +44,17 @@ Click the following link for register : https://t.me/TimeFarmCryptoBot?start=aL1
 
 ## Config.json Explanation
 
-| key          | value             | description                               |
-| ------------ | ----------------- | ----------------------------------------- |
-| auto_upgrade | bool (true/false) | auto upgrade account to next level        |
-| auto_task    | bool (true/false) | auto complete task (except telegram task) |
-| interval     | integer (second)  | sleep time every account                  |
+| key          | value             | description                                                                                                                   |
+| ------------ | ----------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| api_id       | string            | api_id for telegram client library, <br>see [Get My Own API\_ID \& API\_HASH](#get-my-own-api_id--api_hash) to get your own   |
+| api_hash     | string            | api_hash for telegram client library, <br>see [Get My Own API\_ID \& API\_HASH](#get-my-own-api_id--api_hash) to get your own |
+| auto_upgrade | bool (true/false) | auto upgrade account to next level                                                                                            |
+| auto_task    | bool (true/false) | auto complete task (except telegram task)                                                                                     |
+| interval     | integer (second)  | sleep time every account                                                                                                      |
+
+## Get My Own API_ID & API_HASH
+
+If you want to get your own api_id & api hash, you can goto <a href="https://my.telegram.org" target="_blank">https://my.telegram.org</a>
 
 ## Windows 
 
@@ -144,23 +156,6 @@ Click the following link for register : https://t.me/TimeFarmCryptoBot?start=aL1
    ```
    python bot.py
    ```
-
-# How to Get Data
-
-So the way to get the data needed is the same as the bot script program that I have made before, for example [blumtod](https://github.com/akasakaid/blumtod). the data is entered into the data.txt file, one line contains 1 account data. 
-
-Example of data needed
-
-```
-query_id=xxxxxxxxxx&user=xxxxxxfirst_namexxxxxlast_namexxxxxxxusernamexxxxxxxlanguage_codexxxxxxxallows_write_to_pmxxxxxxx&auth_date=xxxxxx&hash=xxxxxxxxxxxxxxxxxxxxx
-```
-
-If you want to add more account than this is how
-
-```
-query_id=xxxxxxxxxx&user=xxxxxxfirst_namexxxxxlast_namexxxxxxxusernamexxxxxxxlanguage_codexxxxxxxallows_write_to_pmxxxxxxx&auth_date=xxxxxx&hash=xxxxxxxxxxxxxxxxxxxxx
-query_id=xxxxxxxxxx&user=xxxxxxfirst_namexxxxxlast_namexxxxxxxusernamexxxxxxxlanguage_codexxxxxxxallows_write_to_pmxxxxxxx&auth_date=xxxxxx&hash=xxxxxxxxxxxxxxxxxxxxx
-```
 
 # Discussion
 
